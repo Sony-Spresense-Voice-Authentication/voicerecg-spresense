@@ -7,6 +7,7 @@ from typing import Optional
 from voice_auth import voice_auth
 from voice_auth import voice_record
 import logging
+import utilities as ut
 
 logging.basicConfig(format='%(levelname)s: %(message)s', level=logging.INFO)
 
@@ -16,6 +17,9 @@ BASEPATH = os.path.dirname(__file__)
 NUM_SAMPLE = 6
 phrase = 'The quick fox jumps nightly above the wizard'
 
+ut.check_folder(os.path.join(BASEPATH, '../audio'))
+ut.check_folder(os.path.join(BASEPATH, '../audio_models'))
+ut.check_folder(os.path.join(BASEPATH, '../threshold'))
 
 def authenticate():
     f = open(os.path.join(BASEPATH, 'threshold.txt'), 'r')
@@ -30,6 +34,7 @@ def authenticate():
         print('Verified')
         return True
     else:
+        print('Not Verified')
         return False
 
 
