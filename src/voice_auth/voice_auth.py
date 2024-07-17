@@ -72,44 +72,71 @@ def build_model(name, paths):
         logging.debug(f"# samples: {len(paths)}")
         gmm = sklearn.mixture.GaussianMixture(
             n_components=len(paths), max_iter=200, covariance_type='diag', n_init=3)
-        gmm.fit(features)
-        pickle.dump(gmm, open(os.path.join(dest, name + '.gmm'), 'wb'))
+        gmm.fit(combined_features)
+        if not os.path.exists(dest):
+            os.makedirs(dest)
+        pickle.dump(gmm, open(os.path.join(dest, f'{name}.gmm'), 'wb'))
         return True
     else:
         logging.warning(" NO FEATURES")
         return False
 
 
-def compare(path):
-    """ Compares audio features against all models to find closest match above given threshold
+# def compare(path):
+#     """ Compares audio features against all models to find closest match above given threshold
+#     Parameters:
+#     paths: str              - path of WAV file to compare
+#     threshold: num          - threshold for match, negative log likelihood
+#     """
+#     models_src = os.path.join(BASEPATH, '../../audio_models')
+#     model_paths = [os.path.join(models_src, fname) for fname in
+#         os.listdir(models_src) if fname.endswith('.gmm')]
+#
+#     sampling_rate, data = wav.read(path)
+#
+#     best_model = None
+#     best_probabilty = None
+#     debug_every_model = []
+#     for path in model_paths:
+#         model_name = path.split('/')[-1].split('.')[0]
+#         model = pickle.load(open(path, 'rb'))
+#         features = voice_features(sampling_rate, data)
+#         ll = np.array(model.score(features)).sum()
+#
+#         if best_model is None:
+#             best_model = model_name
+#         if best_probabilty is None:
+#             best_probabilty = ll
+#         elif ll > best_probabilty:
+#             best_model = model_name
+#             best_probabilty = ll
+#         debug_every_model.append((model_name, ll))
+#
+#     logging.debug(debug_every_model)
+#     return best_model, best_probabilty
+
+def compare(audio_path, model_path):
+    """Compares audio features against a specific model to find the match probability.
     Parameters:
-    paths: str              - path of WAV file to compare
-    threshold: num          - threshold for match, negative log likelihood
+    audio_path: str - path of WAV file to compare
+    model_path: str - path of the GMM model file
     """
-    models_src = os.path.join(BASEPATH, '../../audio_models')
-    model_paths = [os.path.join(models_src, fname) for fname in
-        os.listdir(models_src) if fname.endswith('.gmm')]
+    # 读取音频文件
+    sampling_rate, data = wav.read(audio_path)
 
-    sampling_rate, data = wav.read(path)
+    # 加载指定的模型
+    model = pickle.load(open(model_path, 'rb'))
 
-    best_model = None
-    best_probabilty = None
-    debug_every_model = []
-    for path in model_paths:
-        model_name = path.split('/')[-1].split('.')[0]
-        model = pickle.load(open(path, 'rb'))
-        features = voice_features(sampling_rate, data)
-        ll = np.array(model.score(features)).sum()
+    # 计算特征
+    features = voice_features(sampling_rate, data)
 
-        if best_model is None:
-            best_model = model_name
-        if best_probabilty is None:
-            best_probabilty = ll
-        elif ll > best_probabilty:
-            best_model = model_name
-            best_probabilty = ll
-        debug_every_model.append((model_name, ll))
+    # 计算对数似然度
+    ll = np.array(model.score(features)).sum()
 
-    logging.debug(debug_every_model)
-    return best_model, best_probabilty
+    # 提取模型名称
+    model_name = model_path.split('/')[-1].split('.')[0]
+
+    logging.debug(f"Model: {model_name}, Log Likelihood: {ll}")
+
+    return model_name, ll
 

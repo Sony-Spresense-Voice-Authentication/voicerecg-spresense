@@ -14,29 +14,46 @@ logging.basicConfig(format='%(levelname)s: %(message)s', level=logging.INFO)
 THRESHOLD = -300
 SECONDS = 4
 BASEPATH = os.path.dirname(__file__)
+AUDIOPATH = os.path.join(os.path.join(BASEPATH, '../audio'))
+MODELPATH = os.path.join(os.path.join(BASEPATH, '../audio_models'))
+THRESHOLDPATH = os.path.join(os.path.join(BASEPATH, '../thresholds'))
 NUM_SAMPLE = 6
 phrase = 'The quick fox jumps nightly above the wizard'
 
-ut.check_folder(os.path.join(BASEPATH, '../audio'))
-ut.check_folder(os.path.join(BASEPATH, '../audio_models'))
-ut.check_folder(os.path.join(BASEPATH, '../threshold'))
+ut.check_folder(AUDIOPATH)
+ut.check_folder(MODELPATH)
+ut.check_folder(THRESHOLDPATH)
 
 def authenticate():
-    f = open(os.path.join(BASEPATH, 'threshold.txt'), 'r')
-    THRESHOLD = float(f.read())
-    f.close()
+    # 定位比较用的音频文件
+    compare_audio_path = os.path.join(AUDIOPATH, 'compare.wav')
+    recorded_path = voice_record.record(compare_audio_path, SECONDS)
 
-    path = os.path.join(BASEPATH, '../audio/compare.wav')
-    model, prob = voice_auth.compare(voice_record.record(path, SECONDS))
-    logging.debug(f"{model}, {prob}")
+    # 遍历所有模型文件
+    model_files = glob.glob(os.path.join(MODELPATH, '*.gmm'))
+    for model_file in model_files:
+        username = os.path.basename(model_file).replace('.gmm', '')
+        threshold_file = os.path.join(THRESHOLDPATH, f'{username}.txt')
 
-    if prob and prob > THRESHOLD:
-        print('Verified')
-        return True
-    else:
-        print('Not Verified')
-        return False
+        try:
+            with open(threshold_file, 'r') as f:
+                THRESHOLD = float(f.read())
+        except Exception as e:
+            logging.error(f"Error reading the threshold for {username}: {e}")
+            continue  # 如果阈值文件有问题，跳过当前用户
 
+        # 使用当前模型进行比较
+        model, prob = voice_auth.compare(recorded_path, model_file)
+
+        logging.debug(f"Model: {model}, Probability: {prob}, Threshold: {THRESHOLD}")
+
+        # 检查概率是否大于阈值
+        if prob and prob > THRESHOLD:
+            print(f'User {username} verified.')
+            return True
+
+    print('No user verified.')
+    return False
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
@@ -45,11 +62,10 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     if not args.auth:
-        files = glob.glob(os.path.join(BASEPATH, '../audio_models/*'))
+        files = glob.glob(os.path.join(MODELPATH, '*'))
         for f in files:
             os.remove(f)
 
-        dest = os.path.join(BASEPATH, f'../audio')
         phrase = args.phrase if args.phrase else phrase
         username = input('Please input your username: ')
 
@@ -57,16 +73,16 @@ if __name__ == '__main__':
         print("Please say the phrase:", phrase)
         for i in range(1, NUM_SAMPLE//2 + 1):
             promp = input('Press enter to record... ')
-            path = os.path.join(dest, username + str(i) + '.wav')
-            voice_record.record(path, SECONDS)
+            path = os.path.join(AUDIOPATH, username + str(i) + '.wav')
+            # voice_record.record(path, SECONDS)
             paths_modelling.append(path)
 
         paths_training = []
         print("Please say the phrase:", phrase)
         for i in range(4, int(NUM_SAMPLE) + 1):
             promp = input('Press enter to record... ')
-            path = os.path.join(dest, username + str(i) + '.wav')
-            voice_record.record(path, SECONDS)
+            path = os.path.join(AUDIOPATH, username + str(i) + '.wav')
+            # voice_record.record(path, SECONDS)
             paths_training.append(path)
 
         voice_auth.build_model(username, paths_modelling)
@@ -79,7 +95,7 @@ if __name__ == '__main__':
         THRESHOLD = (sum(thresholds) / len(thresholds)) - 0.5
         logging.debug(THRESHOLD)
 
-        f = open(os.path.join(BASEPATH, 'threshold.txt'), 'w')
+        f = open(os.path.join(THRESHOLDPATH, f'{username}.txt'), 'w')
         f.write(str(THRESHOLD))
         f.close()
 
