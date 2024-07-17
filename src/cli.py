@@ -9,7 +9,7 @@ from voice_auth import voice_record
 import logging
 import utilities as ut
 
-logging.basicConfig(format='%(levelname)s: %(message)s', level=logging.INFO)
+logging.basicConfig(format='%(levelname)s: %(message)s', level=logging.DEBUG)
 
 THRESHOLD = -300
 SECONDS = 4
@@ -56,32 +56,55 @@ def authenticate():
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('-a', '--auth', action='store_true', required=False)
-    parser.add_argument('-p', '--phrase', required=False)
+    parser.add_argument('-p', '--phrase', required=False, help='Define your own phrase')
+    parser.add_argument('-dm', '--delete-model', action='store_true', required=False, help='Delete model files')
+    parser.add_argument('-da', '--delete-audio', action='store_true', required=False, help='Delete audio files')
     args = parser.parse_args()
 
     if not args.auth:
-        files = glob.glob(os.path.join(BASEPATH, '../audio_models/*'))
-        for f in files:
-            os.remove(f)
+        # Disable audio deletion when training
+        if args.delete_model:
+            files = glob.glob(os.path.join(MODELPATH, '*'))
+            for f in files:
+                os.remove(f)
+
+        if args.delete_audio:
+            files = glob.glob(os.path.join(AUDIOPATH, '*'))
+            for f in files:
+                os.remove(f)
 
         phrase = args.phrase if args.phrase else phrase
         username = input('Please input your username: ')
 
         paths_modelling = []
-        print("Please say the phrase:", phrase)
-        for i in range(1, NUM_SAMPLE//2 + 1):
-            promp = input('Press enter to record... ')
-            path = os.path.join(AUDIOPATH, username + str(i) + '.wav')
-            voice_record.record(path, SECONDS)
-            paths_modelling.append(path)
+        if os.path.exists(os.path.join(AUDIOPATH, f'{username}1.wav')):
+            logging.info("User " + username + " modeling data exists, skipping recording.")
+            for i in range(1, NUM_SAMPLE//2 + 1):
+                path = os.path.join(AUDIOPATH, username + str(i) + '.wav')
+                paths_modelling.append(path)
+            logging.debug("Path Modeling: " + str(paths_modelling))
+        else:
+            print("Please say the phrase:", phrase)
+            for i in range(1, NUM_SAMPLE//2 + 1):
+                promp = input('Press enter to record... ')
+                path = os.path.join(AUDIOPATH, username + str(i) + '.wav')
+                voice_record.record(path, SECONDS)
+                paths_modelling.append(path)
 
         paths_training = []
-        print("Please say the phrase:", phrase)
-        for i in range(4, int(NUM_SAMPLE) + 1):
-            promp = input('Press enter to record... ')
-            path = os.path.join(AUDIOPATH, username + str(i) + '.wav')
-            voice_record.record(path, SECONDS)
-            paths_training.append(path)
+        if os.path.exists(os.path.join(AUDIOPATH, f'{username}4.wav')):
+            logging.info("User " + username + " training data exists, skipping recording.")
+            for i in range(4, int(NUM_SAMPLE) + 1):
+                path = os.path.join(AUDIOPATH, username + str(i) + '.wav')
+                paths_training.append(path)
+            logging.debug("Path Training: " + str(paths_training))
+        else:
+            print("Please say the phrase:", phrase)
+            for i in range(4, int(NUM_SAMPLE) + 1):
+                promp = input('Press enter to record... ')
+                path = os.path.join(AUDIOPATH, username + str(i) + '.wav')
+                voice_record.record(path, SECONDS)
+                paths_training.append(path)
 
         voice_auth.build_model(username, paths_modelling)
         model_path = os.path.join(MODELPATH, username + '.gmm')
@@ -97,6 +120,7 @@ if __name__ == '__main__':
         f = open(os.path.join(THRESHOLDPATH, f'{username}.txt'), 'w')
         f.write(str(THRESHOLD))
         f.close()
+        logging.info("User " + username + " modeling data saved.")
 
     else:
         sys.exit(1 if authenticate() else 0)
