@@ -10,7 +10,6 @@ import logging
 import utilities as ut
 
 logging.basicConfig(format='%(levelname)s: %(message)s', level=logging.DEBUG)
-
 THRESHOLD = -300
 SECONDS = 4
 BASEPATH = os.path.dirname(__file__)
