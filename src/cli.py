@@ -9,7 +9,8 @@ from voice_auth import voice_record
 import logging
 import utilities as ut
 
-logging.basicConfig(format='%(levelname)s: %(message)s', level=logging.DEBUG)
+logging.basicConfig(format='%(levelname)s: %(message)s', level=logging.INFO)
+
 THRESHOLD = -300
 SECONDS = 4
 BASEPATH = os.path.dirname(__file__)
