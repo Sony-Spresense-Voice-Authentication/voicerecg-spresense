@@ -8,6 +8,7 @@ import scipy.io.wavfile as wav
 import sklearn.mixture
 import noisereduce
 from pydub import AudioSegment
+import utilities as ut
 
 BASEPATH = os.path.dirname(__file__)
 
@@ -58,6 +59,11 @@ def build_model(name, paths):
     paths: list[str]        - list of paths of WAV files. WAV files MUST BE MONO NOT STERO
     """
     dest = os.path.join(BASEPATH, '../../audio_models')
+    models_dir = os.path.join(BASEPATH, '../../models_parameters')
+
+    ut.check_folder(models_dir)
+    ut.check_folder(dest)
+
     combined_features = np.asarray([])
     logging.debug(dest)
     for path in paths:
@@ -70,50 +76,33 @@ def build_model(name, paths):
 
     if combined_features.size != 0:
         logging.debug(f"# samples: {len(paths)}")
-        gmm = sklearn.mixture.GaussianMixture(
-            n_components=len(paths), max_iter=200, covariance_type='diag', n_init=3)
+
+        # 训练GMM模型
+        gmm = sklearn.mixture.GaussianMixture(n_components=len(paths), max_iter=200, covariance_type='diag', n_init=3)
         gmm.fit(combined_features)
-        if not os.path.exists(dest):
-            os.makedirs(dest)
+
+        # 保存GMM模型
         pickle.dump(gmm, open(os.path.join(dest, f'{name}.gmm'), 'wb'))
+
+        # 导出模型参数
+        weights = gmm.weights_
+        means = gmm.means_
+        covariances = gmm.covariances_
+
+        np.savetxt(os.path.join(models_dir, f'{name}_weights.txt'), weights)
+        np.savetxt(os.path.join(models_dir, f'{name}_means.txt'), means)
+        np.savetxt(os.path.join(models_dir, f'{name}_covariances.txt'), covariances.reshape(-1, covariances.shape[-1]))
+
+        # 更新用户列表文件
+        users_list_path = os.path.join(models_dir, 'users_list.txt')
+        with open(users_list_path, 'a') as f:
+            f.write(name + '\n')
+            
         return True
     else:
         logging.warning(" NO FEATURES")
         return False
 
-
-# def compare(path):
-#     """ Compares audio features against all models to find closest match above given threshold
-#     Parameters:
-#     paths: str              - path of WAV file to compare
-#     threshold: num          - threshold for match, negative log likelihood
-#     """
-#     models_src = os.path.join(BASEPATH, '../../audio_models')
-#     model_paths = [os.path.join(models_src, fname) for fname in
-#         os.listdir(models_src) if fname.endswith('.gmm')]
-#
-#     sampling_rate, data = wav.read(path)
-#
-#     best_model = None
-#     best_probabilty = None
-#     debug_every_model = []
-#     for path in model_paths:
-#         model_name = path.split('/')[-1].split('.')[0]
-#         model = pickle.load(open(path, 'rb'))
-#         features = voice_features(sampling_rate, data)
-#         ll = np.array(model.score(features)).sum()
-#
-#         if best_model is None:
-#             best_model = model_name
-#         if best_probabilty is None:
-#             best_probabilty = ll
-#         elif ll > best_probabilty:
-#             best_model = model_name
-#             best_probabilty = ll
-#         debug_every_model.append((model_name, ll))
-#
-#     logging.debug(debug_every_model)
-#     return best_model, best_probabilty
 
 def compare(audio_path, model_path):
     """Compares audio features against a specific model to find the match probability.

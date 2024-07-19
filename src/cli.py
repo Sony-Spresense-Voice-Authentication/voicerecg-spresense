@@ -7,6 +7,7 @@ from typing import Optional
 from voice_auth import voice_auth
 from voice_auth import voice_record
 import logging
+import scipy.io.wavfile as wav
 import utilities as ut
 
 logging.basicConfig(format='%(levelname)s: %(message)s', level=logging.INFO)
@@ -42,9 +43,15 @@ def authenticate():
             logging.error(f"Error reading the threshold for {username}: {e}")
             continue
 
-        model, prob = voice_auth.compare(recorded_path, model_file)
+        sampling_rate: int
+        sampling_rate, data = wav.read(recorded_path)
 
-        logging.debug(f"Model: {model}, Probability: {prob}, Threshold: {THRESHOLD}")
+        #生成 mfcc_features.txt
+        voice_auth.voice_features_a(sampling_rate, data)
+        #
+        model, prob = voice_auth.compare_a(model_file)
+
+        logging.info(f"Model: {model}, Probability: {prob}, Threshold: {THRESHOLD}")
 
         if prob and prob > THRESHOLD:
             print(f'User {username} verified.')
