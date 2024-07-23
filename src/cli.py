@@ -3,21 +3,27 @@ import argparse
 import os
 import glob
 import sys
-from typing import Optional
+import signal
+import time
 from voice_auth import voice_auth
 from voice_auth import voice_record
 import logging
 import utilities as ut
+import gpio
 
 logging.basicConfig(format='%(levelname)s: %(message)s', level=logging.INFO)
 
 THRESHOLD = -300
 SECONDS = 4
 BASEPATH = os.path.dirname(__file__)
+# SPRESENSE_PATH = os.path.abspath("/media/usb")
+SPRESENSE_PATH = os.path.join(os.path.join(BASEPATH, '../audio'))
 AUDIOPATH = os.path.join(os.path.join(BASEPATH, '../audio'))
 MODELPATH = os.path.join(os.path.join(BASEPATH, '../audio_models'))
 THRESHOLDPATH = os.path.join(os.path.join(BASEPATH, '../thresholds'))
 NUM_SAMPLE = 6
+TRUE_PIN = 28
+FALSE_PIN = 27
 phrase = 'The quick fox jumps nightly above the wizard'
 
 ut.check_folder(AUDIOPATH)
@@ -26,8 +32,8 @@ ut.check_folder(THRESHOLDPATH)
 
 def authenticate():
     # 定位比较用的音频文件
-    compare_audio_path = os.path.join(AUDIOPATH, 'compare.wav')
-    recorded_path = voice_record.record(compare_audio_path, SECONDS)
+    compare_audio_path = os.path.join(SPRESENSE_PATH, 'compare.wav')
+    # recorded_path = voice_record.record(compare_audio_path, SECONDS)
 
     # 遍历所有模型文件
     model_files = glob.glob(os.path.join(MODELPATH, '*.gmm'))
@@ -42,16 +48,25 @@ def authenticate():
             logging.error(f"Error reading the threshold for {username}: {e}")
             continue
 
-        model, prob = voice_auth.compare(recorded_path, model_file)
+        model, prob = voice_auth.compare(compare_audio_path, model_file)
 
         logging.debug(f"Model: {model}, Probability: {prob}, Threshold: {THRESHOLD}")
 
         if prob and prob > THRESHOLD:
             print(f'User {username} verified.')
+            gpio.unlock(TRUE_PIN)
             return True
 
     print('No user verified.')
+    gpio.lock(FALSE_PIN)
     return False
+
+def signal_handler(sig, frame):
+    print("\nYou pressed Ctrl+C!")
+    print("Cleaning up and exiting...")
+    sys.exit(0)
+
+
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
@@ -123,4 +138,11 @@ if __name__ == '__main__':
         logging.info("User " + username + " modeling data saved.")
 
     else:
-        sys.exit(1 if authenticate() else 0)
+        # sys.exit(1 if authenticate() else 0)
+
+        # Register the signal handler
+        signal.signal(signal.SIGINT, signal_handler)
+
+        while True:
+            authenticate()
+            time.sleep(1)
