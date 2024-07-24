@@ -9,9 +9,9 @@ from voice_auth import voice_auth
 # from voice_auth import voice_record
 import logging
 import utilities as ut
-import gpio
 
-logging.basicConfig(format='%(levelname)s: %(message)s', level=logging.INFO)
+
+logging.basicConfig(format='%(levelname)s: %(message)s', level=logging.DEBUG)
 
 THRESHOLD = -300
 SECONDS = 4
@@ -30,6 +30,8 @@ phrase = 'The quick fox jumps nightly above the wizard'
 ut.check_folder(AUDIOPATH)
 ut.check_folder(MODELPATH)
 ut.check_folder(THRESHOLDPATH)
+
+import gpio
 
 def authenticate():
     # 定位比较用的音频文件

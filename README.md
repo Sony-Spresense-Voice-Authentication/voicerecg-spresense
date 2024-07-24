@@ -42,7 +42,8 @@ You have to manually compile Python3.10 and create venv
 ```shell
 sudo apt-get update; sudo apt-get install make build-essential libssl-dev zlib1g-dev \
 libbz2-dev libreadline-dev libsqlite3-dev wget curl llvm \
-libncursesw5-dev xz-utils tk-dev libxml2-dev libxmlsec1-dev libffi-dev liblzma-dev libsndfile1
+libncursesw5-dev xz-utils tk-dev libxml2-dev libxmlsec1-dev libffi-dev liblzma-dev libsndfile1 \
+ffmpeg
 wget https://www.python.org/ftp/python/3.10.14/Python-3.10.14.tar.xz
 tar -xvf Python-3.10.14.tar.xz && cd Python-3.10.14
 export PYENV_ROOT="$HOME/.pyenv"
@@ -59,6 +60,7 @@ python3.10 -m venv .
 chmod +x bin/activate
 bin/activate
 bin/python -m pip install -r requirements.txt
+bin/python -m pip install pyaudio RPi.GPIO
 ```
 
 ## Training 
