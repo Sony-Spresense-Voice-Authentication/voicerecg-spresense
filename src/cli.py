@@ -22,8 +22,9 @@ AUDIOPATH = os.path.join(os.path.join(BASEPATH, '../audio'))
 MODELPATH = os.path.join(os.path.join(BASEPATH, '../audio_models'))
 THRESHOLDPATH = os.path.join(os.path.join(BASEPATH, '../thresholds'))
 NUM_SAMPLE = 6
-TRUE_PIN = 28
-FALSE_PIN = 27
+TRUE_PIN = 23
+FALSE_PIN = 24
+MSC_PIN = 25
 phrase = 'The quick fox jumps nightly above the wizard'
 
 ut.check_folder(AUDIOPATH)
@@ -144,5 +145,8 @@ if __name__ == '__main__':
         signal.signal(signal.SIGINT, signal_handler)
 
         while True:
-            authenticate()
-            time.sleep(1)
+            print("MSC_PIN Status: " + str(gpio.msc_enabled()))
+
+        # while gpio.msc_enabled(MSC_PIN) == 1:
+        #     authenticate()
+        #     time.sleep(1)

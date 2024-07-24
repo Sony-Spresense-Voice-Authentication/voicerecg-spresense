@@ -1,5 +1,7 @@
 import importlib.util
+import logging
 import time
+import cli
 
 try:
     importlib.util.find_spec('RPi.GPIO')
@@ -25,3 +27,8 @@ def lock(channel=18):
     GPIO.setup(channel, GPIO.OUT)
     time.sleep(5)
     GPIO.output(channel, GPIO.LOW)
+
+def msc_enabled(channel=18):
+    GPIO.setup(channel, GPIO.IN)
+    logging.debug("MSC_PIN: " + str(GPIO.input(channel)))
+    return GPIO.input(channel)
