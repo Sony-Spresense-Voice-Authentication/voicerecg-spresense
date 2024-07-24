@@ -47,9 +47,9 @@ FALSE_PIN = 24
 MSC_PIN = 25
 
 # GPIO initialization
-# GPIO.cleanup(TRUE_PIN)
-# GPIO.cleanup(FALSE_PIN)
-# GPIO.cleanup(MSC_PIN)
+GPIO.cleanup(TRUE_PIN)
+GPIO.cleanup(FALSE_PIN)
+GPIO.cleanup(MSC_PIN)
 GPIO.setmode(GPIO.BCM)
 GPIO.setup(TRUE_PIN, GPIO.OUT)
 GPIO.setup(FALSE_PIN, GPIO.OUT)
