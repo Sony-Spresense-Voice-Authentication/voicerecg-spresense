@@ -9,6 +9,19 @@ from voice_auth import voice_auth
 # from voice_auth import voice_record
 import logging
 import utilities as ut
+import importlib.util
+import time
+
+try:
+    importlib.util.find_spec('RPi.GPIO')
+    import RPi.GPIO as GPIO
+except ImportError:
+    """
+    import FakeRPi.GPIO as GPIO
+    OR
+    import FakeRPi.RPiO as RPiO
+    """
+    import FakeRPi.GPIO as GPIO
 
 
 logging.basicConfig(format='%(levelname)s: %(message)s', level=logging.DEBUG)
@@ -30,8 +43,16 @@ ut.check_folder(THRESHOLDPATH)
 
 
 
+TRUE_PIN = 23
+FALSE_PIN = 24
+MSC_PIN = 25
+
+GPIO.setmode(GPIO.BCM)
+GPIO.setup(TRUE_PIN, GPIO.OUT)
+GPIO.setup(FALSE_PIN, GPIO.OUT)
+GPIO.setup(MSC_PIN, GPIO.IN)
+
 def authenticate():
-    import gpio
     # 定位比较用的音频文件
     compare_audio_path = os.path.join(SPRESENSE_PATH, 'compare.wav')
     # recorded_path = voice_record.record(compare_audio_path, SECONDS)
@@ -55,11 +76,11 @@ def authenticate():
 
         if prob and prob > THRESHOLD:
             print(f'User {username} verified.')
-            gpio.unlock()
+            GPIO.output(TRUE_PIN, GPIO.HIGH)
             return True
 
     print('No user verified.')
-    gpio.lock()
+    GPIO.output(FALSE_PIN, GPIO.HIGH)
     return False
 
 def signal_handler(sig, frame):
