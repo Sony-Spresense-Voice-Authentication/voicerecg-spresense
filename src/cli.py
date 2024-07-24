@@ -28,9 +28,10 @@ ut.check_folder(AUDIOPATH)
 ut.check_folder(MODELPATH)
 ut.check_folder(THRESHOLDPATH)
 
-import gpio
+
 
 def authenticate():
+    import gpio
     # 定位比较用的音频文件
     compare_audio_path = os.path.join(SPRESENSE_PATH, 'compare.wav')
     # recorded_path = voice_record.record(compare_audio_path, SECONDS)
