@@ -42,15 +42,19 @@ ut.check_folder(MODELPATH)
 ut.check_folder(THRESHOLDPATH)
 
 
-
 TRUE_PIN = 23
 FALSE_PIN = 24
 MSC_PIN = 25
 
+# GPIO initialization
 GPIO.setmode(GPIO.BCM)
-GPIO.setup(TRUE_PIN, GPIO.OUT, GPIO.LOW)
-GPIO.setup(FALSE_PIN, GPIO.OUT, GPIO.LOW)
-GPIO.setup(MSC_PIN, GPIO.IN, GPIO.LOW)
+GPIO.setup(TRUE_PIN, GPIO.OUT)
+GPIO.setup(FALSE_PIN, GPIO.OUT)
+GPIO.setup(MSC_PIN, GPIO.IN)
+
+# Default LOW
+GPIO.output(TRUE_PIN, GPIO.LOW)
+GPIO.output(FALSE_PIN, GPIO.LOW)
 
 
 def authenticate():
