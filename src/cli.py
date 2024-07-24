@@ -22,9 +22,6 @@ AUDIOPATH = os.path.join(os.path.join(BASEPATH, '../audio'))
 MODELPATH = os.path.join(os.path.join(BASEPATH, '../audio_models'))
 THRESHOLDPATH = os.path.join(os.path.join(BASEPATH, '../thresholds'))
 NUM_SAMPLE = 6
-TRUE_PIN = 23
-FALSE_PIN = 24
-MSC_PIN = 25
 phrase = 'The quick fox jumps nightly above the wizard'
 
 ut.check_folder(AUDIOPATH)
@@ -57,11 +54,11 @@ def authenticate():
 
         if prob and prob > THRESHOLD:
             print(f'User {username} verified.')
-            gpio.unlock(TRUE_PIN)
+            gpio.unlock()
             return True
 
     print('No user verified.')
-    gpio.lock(FALSE_PIN)
+    gpio.lock()
     return False
 
 def signal_handler(sig, frame):

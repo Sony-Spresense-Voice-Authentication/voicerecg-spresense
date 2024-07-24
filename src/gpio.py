@@ -13,27 +13,33 @@ except ImportError:
     """
     import FakeRPi.GPIO as GPIO
 
+TRUE_PIN = 23
+FALSE_PIN = 24
+MSC_PIN = 25
+
 GPIO.setmode(GPIO.BCM)
+GPIO.setup(TRUE_PIN, GPIO.OUT)
+GPIO.setup(FALSE_PIN, GPIO.OUT)
+GPIO.setup(MSC_PIN, GPIO.IN)
 
 
-def unlock(channel=23):
-    logging.debug("Sending unlock signal to GPIO channel {}".format(channel))
-    GPIO.setup(channel, GPIO.OUT)
-    GPIO.output(channel, GPIO.HIGH)  # Unlock when it is set to high
+def unlock():
+    logging.debug("Sending unlock signal to GPIO channel {}".format(TRUE_PIN))
+    GPIO.output(TRUE_PIN, GPIO.HIGH)  # Unlock when it is set to high
     time.sleep(5)  # Wait for 5 seconds before releasing
-    GPIO.output(channel, GPIO.LOW)  # Relock after sleep
+    GPIO.output(TRUE_PIN, GPIO.LOW)  # Relock after sleep
     GPIO.cleanup()
 
 
-def lock(channel=24):
-    logging.debug("Sending lock signal to GPIO channel {}".format(channel))
-    GPIO.setup(channel, GPIO.OUT)
+def lock():
+    logging.debug("Sending lock signal to GPIO channel {}".format(FALSE_PIN))
+    GPIO.setup(FALSE_PIN, GPIO.OUT)
     time.sleep(5)
-    GPIO.output(channel, GPIO.LOW)
+    GPIO.output(FALSE_PIN, GPIO.LOW)
 
 
-def msc_enabled(channel=25):
-    logging.debug("Sending msc enabled signal to GPIO channel {}".format(channel))
-    GPIO.setup(channel, GPIO.IN)
-    logging.debug("MSC_PIN: " + str(GPIO.input(channel)))
-    return GPIO.input(channel)
+def msc_enabled():
+    logging.debug("Sending msc enabled signal to GPIO channel {}".format(MSC_PIN))
+    GPIO.setup(MSC_PIN, GPIO.IN)
+    logging.debug("MSC_PIN: " + str(GPIO.input(MSC_PIN)))
+    return GPIO.input(MSC_PIN)
