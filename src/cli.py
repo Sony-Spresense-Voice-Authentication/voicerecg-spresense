@@ -172,7 +172,7 @@ if __name__ == '__main__':
         while True:
             if os.path.exists("/media/usb") :
                 authenticate()
-                time.sleep(1)
+                time.sleep(5)
             else:
                 print("Waiting for Spresense connection......")
-                time.sleep(1)
+                time.sleep(5)
