@@ -181,7 +181,7 @@ if __name__ == '__main__':
             if os.path.exists("/dev/disk/by-uuid/541E-6E17") :
                 time.sleep(2)
                 authenticate()
-                time.sleep(1)
+                time.sleep(3)
             else:
                 print(time.time())
                 print("Waiting for Spresense connection......")
