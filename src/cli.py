@@ -6,7 +6,7 @@ import sys
 import signal
 import time
 from voice_auth import voice_auth
-from voice_auth import voice_record
+# from voice_auth import voice_record
 import logging
 import utilities as ut
 import gpio
@@ -144,9 +144,10 @@ if __name__ == '__main__':
         # Register the signal handler
         signal.signal(signal.SIGINT, signal_handler)
 
-        while True:
-            print("MSC_PIN Status: " + str(gpio.msc_enabled()))
+        # while True:
+            # print("MSC_PIN Status: " + str(gpio.msc_enabled()))
 
         # while gpio.msc_enabled(MSC_PIN) == 1:
-        #     authenticate()
-        #     time.sleep(1)
+        while True:
+            authenticate()
+            time.sleep(1)

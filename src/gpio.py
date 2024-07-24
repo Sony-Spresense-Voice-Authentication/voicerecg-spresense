@@ -1,7 +1,6 @@
 import importlib.util
 import logging
 import time
-import cli
 
 try:
     importlib.util.find_spec('RPi.GPIO')

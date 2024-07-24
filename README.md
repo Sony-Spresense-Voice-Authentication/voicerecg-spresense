@@ -28,6 +28,39 @@ brew install portaudio
 pip install pyaudio
 ```
 
+If you are using Debian/Ubuntu:
+```shell
+sudo apt install portaudio19-dev
+pip install pyaudio
+```
+
+### If you are using Raspberry Pi
+It is noted that Raspberry Pi could not install Miniconda to create a venv conveiently.
+You have to manually compile Python3.10 and create venv
+
+// Inspired from [this page](https://www.enablegeek.com/tutorial/install-python-on-a-raspberry-pi-step-by-step-guide)
+```shell
+sudo apt-get update; sudo apt-get install make build-essential libssl-dev zlib1g-dev \
+libbz2-dev libreadline-dev libsqlite3-dev wget curl llvm \
+libncursesw5-dev xz-utils tk-dev libxml2-dev libxmlsec1-dev libffi-dev liblzma-dev libsndfile1
+wget https://www.python.org/ftp/python/3.10.14/Python-3.10.14.tar.xz
+tar -xvf Python-3.10.14.tar.xz && cd Python-3.10.14
+export PYENV_ROOT="$HOME/.pyenv"
+export PATH="$PYENV_ROOT/bin:$PATH"
+make clean
+./configure --enable-optimizations --with-ensurepip=install --with-ssl
+make -j 4 && sudo make altinstall
+```
+Then create a new venv for this project:
+```shell
+git clone https://github.com/Sony-Spresense-Voice-Authentication/voicerecg-spresense.git
+cd voicerecg-spresense
+python3.10 -m venv .
+chmod +x bin/activate
+bin/activate
+bin/python -m pip install -r requirements.txt
+```
+
 ## Training 
 ```shell
 python src/cli.py
