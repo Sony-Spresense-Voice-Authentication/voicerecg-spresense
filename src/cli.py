@@ -47,13 +47,11 @@ FALSE_PIN = 24
 MSC_PIN = 25
 
 # GPIO initialization
-GPIO.cleanup(TRUE_PIN)
-GPIO.cleanup(FALSE_PIN)
-GPIO.cleanup(MSC_PIN)
 GPIO.setmode(GPIO.BCM)
 GPIO.setup(TRUE_PIN, GPIO.OUT)
 GPIO.setup(FALSE_PIN, GPIO.OUT)
 GPIO.setup(MSC_PIN, GPIO.IN)
+
 
 # Default LOW
 GPIO.output(TRUE_PIN, GPIO.LOW)
@@ -94,6 +92,8 @@ def authenticate():
 def signal_handler(sig, frame):
     print("\nYou pressed Ctrl+C!")
     print("Cleaning up and exiting...")
+    GPIO.cleanup(TRUE_PIN)
+    GPIO.cleanup(FALSE_PIN)
     sys.exit(0)
 
 
@@ -180,8 +180,6 @@ if __name__ == '__main__':
         while True:
             if os.path.exists("/dev/disk/by-uuid/541E-6E17") :
                 authenticate()
-                GPIO.cleanup(TRUE_PIN)
-                GPIO.cleanup(FALSE_PIN)
                 time.sleep(5)
             else:
                 print(time.time())
