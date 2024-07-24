@@ -175,9 +175,10 @@ if __name__ == '__main__':
 
         # while gpio.msc_enabled(MSC_PIN) == 1:
         while True:
-            if os.path.exists("/media/usb/compare.wav") :
+            if os.path.exists("/dev/disk/by-uuid/541E-6E17") :
                 authenticate()
                 time.sleep(5)
             else:
+                print(time.time())
                 print("Waiting for Spresense connection......")
                 time.sleep(5)
