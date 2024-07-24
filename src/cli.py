@@ -29,8 +29,8 @@ logging.basicConfig(format='%(levelname)s: %(message)s', level=logging.DEBUG)
 THRESHOLD = -300
 SECONDS = 4
 BASEPATH = os.path.dirname(__file__)
-# SPRESENSE_PATH = os.path.abspath("/media/usb")
-SPRESENSE_PATH = os.path.join(os.path.join(BASEPATH, '../audio'))
+SPRESENSE_PATH = os.path.abspath("/media/usb")
+# SPRESENSE_PATH = os.path.join(os.path.join(BASEPATH, '../audio'))
 AUDIOPATH = os.path.join(os.path.join(BASEPATH, '../audio'))
 MODELPATH = os.path.join(os.path.join(BASEPATH, '../audio_models'))
 THRESHOLDPATH = os.path.join(os.path.join(BASEPATH, '../thresholds'))
@@ -170,5 +170,9 @@ if __name__ == '__main__':
 
         # while gpio.msc_enabled(MSC_PIN) == 1:
         while True:
-            authenticate()
-            time.sleep(1)
+            if os.path.exists("/media/usb") :
+                authenticate()
+                time.sleep(1)
+            else:
+                print("Waiting for Spresense connection......")
+                time.sleep(1)
