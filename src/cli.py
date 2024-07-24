@@ -179,7 +179,7 @@ if __name__ == '__main__':
         # while gpio.msc_enabled(MSC_PIN) == 1:
         while True:
             if os.path.exists("/dev/disk/by-uuid/541E-6E17") :
-                time.sleep(5)
+                time.sleep(10)
                 authenticate()
                 time.sleep(1)
             else:
