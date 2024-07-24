@@ -48,9 +48,10 @@ FALSE_PIN = 24
 MSC_PIN = 25
 
 GPIO.setmode(GPIO.BCM)
-GPIO.setup(TRUE_PIN, GPIO.OUT)
-GPIO.setup(FALSE_PIN, GPIO.OUT)
-GPIO.setup(MSC_PIN, GPIO.IN)
+GPIO.setup(TRUE_PIN, GPIO.OUT, GPIO.LOW)
+GPIO.setup(FALSE_PIN, GPIO.OUT, GPIO.LOW)
+GPIO.setup(MSC_PIN, GPIO.IN, GPIO.LOW)
+
 
 def authenticate():
     # 定位比较用的音频文件
