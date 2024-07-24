@@ -170,7 +170,7 @@ if __name__ == '__main__':
 
         # while gpio.msc_enabled(MSC_PIN) == 1:
         while True:
-            if os.path.exists("/media/usb") :
+            if os.path.exists("/media/usb/compare.wav") :
                 authenticate()
                 time.sleep(5)
             else:
