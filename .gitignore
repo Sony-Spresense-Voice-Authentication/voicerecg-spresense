@@ -2,8 +2,9 @@
 audio/
 audio_models/
 audio_models_celeb/
+models_parameters/
 test_noise/
-threshold/
+thresholds/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

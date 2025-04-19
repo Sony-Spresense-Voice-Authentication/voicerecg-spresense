@@ -45,7 +45,7 @@ def voice_features(rate, data):
         raise ValueError("WAV file is not mono!")
 
     reduced_noise = noisereduce.reduce_noise(y=data, sr=rate, n_fft=2048)
-    mfccs = features.mfcc(reduced_noise, rate, nfft=2048)  # using default parameters except fft size
+    mfccs = features.mfcc(reduced_noise, rate, nfft=2048,numcep=20)  # using default parameters except fft size
     mfccs = sklearn.preprocessing.scale(mfccs)
     delta_mfccs = features.delta(mfccs, 2)
     return np.hstack((mfccs, delta_mfccs))
@@ -100,7 +100,7 @@ def build_model(name, paths):
             
         return True
     else:
-        logging.warning(" NO FEATURES")
+        raise ValueError("NO FEATURES")
         return False
 
 

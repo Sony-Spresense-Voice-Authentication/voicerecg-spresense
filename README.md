@@ -17,7 +17,7 @@ Voice biometric authentication with multi user support. Based on https://github.
 ## Preparation
 If you are using conda:
 ```shell
-conda create -n voicereg python=3.10
+conda create -n voicereg python=3.10 setuptools=59.8.0
 conda activate voicereg
 pip install -r requirements.txt
 pip install pyaudio
@@ -25,7 +25,7 @@ pip install pyaudio
 If you are using MacOS, You need to install an additional package to run PyAudio:
 ```shell
 brew install portaudio
-pip install pyaudio
+LDFLAGS="-L/{opt/homebrew/}lib" CFLAGS="-I/{opt/homebrew}/include" pip install --no-cache-dir pyaudio
 ```
 
 ## Training 
